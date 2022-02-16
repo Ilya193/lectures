@@ -24,6 +24,38 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        val fullText = getString(R.string.full_text)
+        val button = getString(R.string.button)
 
+        val spannableString = SpannableString(fullText)
+
+        val buttonClickable = MyClickableSpan {
+            Snackbar.make(it, "Click", Snackbar.LENGTH_SHORT).show()
+        }
+
+        spannableString.setSpan(
+            buttonClickable,
+            fullText.indexOf(button),
+            fullText.indexOf(button) + button.length,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        binding.textView.run {
+            text = spannableString
+            movementMethod = LinkMovementMethod.getInstance()
+            highlightColor = Color.TRANSPARENT
+        }
+    }
+}
+
+class MyClickableSpan(private val callback: (view: View) -> Unit) : ClickableSpan() {
+    override fun onClick(widget: View) {
+        callback(widget)
+    }
+
+    override fun updateDrawState(ds: TextPaint) {
+        super.updateDrawState(ds)
+        ds.isUnderlineText = true
+        ds.color = Color.parseColor("#FF0000")
     }
 }
