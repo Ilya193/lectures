@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">lectures</string>
+    <string name="login">Логин</string>
+    <string name="valid_email_message">Почта введена корректно</string>
+    <string name="invalid_email_message">Почта введена некорректно</string>
+    <string name="password">Пароль</string>
 </resources>
