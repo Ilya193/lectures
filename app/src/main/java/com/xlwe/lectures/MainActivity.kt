@@ -1,6 +1,8 @@
 package com.xlwe.lectures
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.InputFilter
 import android.text.TextWatcher
@@ -8,9 +10,11 @@ import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.xlwe.lectures.databinding.ActivityMainBinding
+import com.xlwe.lectures.databinding.DialogBinding
 
 class MainActivity : AppCompatActivity() {
     private val binding: ActivityMainBinding by lazy {
@@ -44,17 +48,41 @@ class MainActivity : AppCompatActivity() {
 
         binding.textInputEditTextPassword.filters = arrayOf(InputFilter.LengthFilter(MAX_LENGTH))
 
+        binding.loginButton.isEnabled = false
+        binding.checkbox.setOnCheckedChangeListener { _, isChecked ->
+            binding.loginButton.isEnabled = isChecked
+        }
+
         binding.loginButton.setOnClickListener {
             val valid =
                 android.util.Patterns.EMAIL_ADDRESS.matcher(binding.textInputEditTextLogin.text.toString()).matches()
 
             if (valid) {
                 hideKeyboard(binding.textInputEditTextLogin)
+                binding.contentLayout.visibility = View.GONE
                 binding.loginButton.isEnabled = false
+                binding.progressBar.visibility = View.VISIBLE
                 Snackbar.make(
                     binding.loginButton, getString(R.string.valid_email_message),
                     Snackbar.LENGTH_SHORT
                 ).show()
+                Handler(Looper.getMainLooper()).postDelayed({
+                    with(binding) {
+                        contentLayout.visibility = View.VISIBLE
+                        progressBar.visibility = View.GONE
+                    }
+
+                    val dialog = BottomSheetDialog(this)
+                    dialog.setCancelable(false)
+                    val view = DialogBinding.inflate(layoutInflater)
+                    view.closeButton.setOnClickListener {
+                        dialog.dismiss()
+                    }
+
+                    dialog.setContentView(view.root)
+                    dialog.show()
+
+                }, 3000)
             }
             else {
                 binding.textInputLayoutLogin.isErrorEnabled = true

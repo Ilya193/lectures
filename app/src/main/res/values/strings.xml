@@ -4,4 +4,7 @@
     <string name="valid_email_message">Почта введена корректно</string>
     <string name="invalid_email_message">Почта введена некорректно</string>
     <string name="password">Пароль</string>
+    <string name="agreement_full_text">Я принимаю условия пользования и политику конфидециальности</string>
+    <string name="attention">Внимание</string>
+    <string name="service_is_unavailable">Сервис не доступен</string>
 </resources>
