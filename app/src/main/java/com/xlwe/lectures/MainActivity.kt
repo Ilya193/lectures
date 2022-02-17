@@ -20,10 +20,36 @@ class MainActivity : AppCompatActivity() {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
+    private lateinit var viewModel: ViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        viewModel = (application as App).viewModel
 
+        val observable = TextObservable()
+        observable.observe(object : TextCallback {
+            override fun updateText(str: String) = runOnUiThread {
+                binding.textView.text = str
+            }
+        })
+
+        viewModel.init(observable)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.resumeCounting()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.pauseCounting()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.clear()
     }
 }
