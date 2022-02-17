@@ -1,19 +1,15 @@
 package com.xlwe.lectures
 
-import android.content.Context
-import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.TextPaint
-import android.text.method.LinkMovementMethod
-import android.text.style.ClickableSpan
-import android.util.Log
-import android.view.View
-import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
+import com.squareup.picasso.Picasso
 import com.xlwe.lectures.databinding.ActivityMainBinding
+import java.net.URL
+
 
 class MainActivity : AppCompatActivity() {
     private val binding: ActivityMainBinding by lazy {
@@ -24,38 +20,61 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val fullText = getString(R.string.full_text)
-        val button = getString(R.string.button)
+        //нет кэширования, проблемы с масштабированием,
+        // проблемы с очень большим изображением
+        val netImage = NetImage(URL, object : ImageCallback {
+            override fun success(bitmap: Bitmap) = runOnUiThread {
+                binding.imageView.setImageBitmap(bitmap)
+            }
 
-        val spannableString = SpannableString(fullText)
+            override fun failed() = runOnUiThread {
+                Snackbar.make(binding.imageView, "failed", Snackbar.LENGTH_SHORT).show()
+            }
+        })
+        //netImage.start()
 
-        val buttonClickable = MyClickableSpan {
-            Snackbar.make(it, "Click", Snackbar.LENGTH_SHORT).show()
-        }
+        /*Picasso.get().load(URL)
+            .centerCrop()
+            .resize(720, 1280)
+            .placeholder(android.R.drawable.ic_media_pause)
+            .error(android.R.drawable.ic_dialog_alert)
+            .into(binding.imageView)*/
 
-        spannableString.setSpan(
-            buttonClickable,
-            fullText.indexOf(button),
-            fullText.indexOf(button) + button.length,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
+        Glide.with(this)
+            .load(URL)
+            .override(720, 1280)
+            .circleCrop()
+            .placeholder(android.R.drawable.ic_media_pause)
+            .error(android.R.drawable.ic_dialog_alert)
+            .into(binding.imageView)
+    }
 
-        binding.textView.run {
-            text = spannableString
-            movementMethod = LinkMovementMethod.getInstance()
-            highlightColor = Color.TRANSPARENT
+    companion object {
+        const val URL =
+            "https://i1.wallbox.ru/wallpapers/main2/201717/art-ogni-kosmos-zvezdy-uzory-tumannost-rossyp-mercanie.jpg"
+    }
+}
+
+class NetImage(
+    private val url: String,
+    private val callback: ImageCallback
+) : Thread() {
+    override fun run() {
+        super.run()
+        try {
+            val connection = URL(url).openConnection()
+            connection.doInput = true
+            connection.connect()
+            connection.getInputStream().use {
+                callback.success(BitmapFactory.decodeStream(it))
+            }
+        } catch (e: Exception) {
+            callback.failed()
         }
     }
 }
 
-class MyClickableSpan(private val callback: (view: View) -> Unit) : ClickableSpan() {
-    override fun onClick(widget: View) {
-        callback(widget)
-    }
-
-    override fun updateDrawState(ds: TextPaint) {
-        super.updateDrawState(ds)
-        ds.isUnderlineText = true
-        ds.color = Color.parseColor("#FF0000")
-    }
+interface ImageCallback {
+    fun success(bitmap: Bitmap)
+    fun failed()
 }

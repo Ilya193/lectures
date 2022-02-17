@@ -1,5 +1,3 @@
 <resources>
     <string name="app_name">lectures</string>
-    <string name="full_text">нажимая на кнопку</string>
-    <string name="button">кнопку</string>
 </resources>
