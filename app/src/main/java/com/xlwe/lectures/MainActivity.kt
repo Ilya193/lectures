@@ -23,28 +23,45 @@ class MainActivity : AppCompatActivity() {
 
     private val textWatcher = object : SimpleTextWatcher() {
         override fun afterTextChanged(s: Editable?) {
-            val input = s.toString()
-            if (input.endsWith("@g")) {
-                val full = "${input}mail.com"
-                setText(full)
-            }
+            binding.textInputLayoutLogin.isErrorEnabled = false
         }
     }
 
-    private fun setText(full: String) {
-        binding.textInputEditTextLogin.removeTextChangedListener(textWatcher)
-        binding.textInputEditTextLogin.setTextCorrectly(full)
+    override fun onResume() {
+        super.onResume()
         binding.textInputEditTextLogin.addTextChangedListener(textWatcher)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.textInputEditTextLogin.removeTextChangedListener(textWatcher)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        //binding.textInputEditText.addTextChangedListener(textWatcher)
-        binding.textInputEditTextLogin.listenChanges {
-            binding.textInputLayoutLogin.isErrorEnabled = false
+        if (savedInstanceState == null)
+            state = SUCCESS
+
+        savedInstanceState?.let {
+            state = it.getInt("screenState")
         }
+
+        when (state) {
+            FAILED -> showDialog()
+            SUCCESS -> {
+                Snackbar.make(
+                    binding.loginButton, "Success",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+                state = INITIAL
+            }
+        }
+
+        /*binding.textInputEditTextLogin.listenChanges {
+            binding.textInputLayoutLogin.isErrorEnabled = false
+        }*/
 
         binding.textInputEditTextPassword.filters = arrayOf(InputFilter.LengthFilter(MAX_LENGTH))
 
@@ -60,27 +77,23 @@ class MainActivity : AppCompatActivity() {
             if (valid) {
                 hideKeyboard(binding.textInputEditTextLogin)
                 binding.contentLayout.visibility = View.GONE
-                binding.loginButton.isEnabled = false
                 binding.progressBar.visibility = View.VISIBLE
+                state = PROGRESS
+
                 Snackbar.make(
                     binding.loginButton, getString(R.string.valid_email_message),
                     Snackbar.LENGTH_SHORT
                 ).show()
+
                 Handler(Looper.getMainLooper()).postDelayed({
+                    state = FAILED
+
                     with(binding) {
                         contentLayout.visibility = View.VISIBLE
                         progressBar.visibility = View.GONE
                     }
 
-                    val dialog = BottomSheetDialog(this)
-                    dialog.setCancelable(false)
-                    val view = DialogBinding.inflate(layoutInflater)
-                    view.closeButton.setOnClickListener {
-                        dialog.dismiss()
-                    }
-
-                    dialog.setContentView(view.root)
-                    dialog.show()
+                    showDialog()
 
                 }, 3000)
             }
@@ -91,8 +104,33 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    companion object {
+    private fun showDialog() {
+        val dialog = BottomSheetDialog(this)
+        dialog.setCancelable(false)
+        val view = DialogBinding.inflate(layoutInflater)
+        view.closeButton.setOnClickListener {
+            state = INITIAL
+            dialog.dismiss()
+        }
+
+        dialog.setContentView(view.root)
+        dialog.show()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("screenState", state)
+    }
+
+    private var state = INITIAL
+
+    private companion object {
         const val MAX_LENGTH = 10
+
+        const val INITIAL = 0
+        const val PROGRESS = 1
+        const val SUCCESS = 2
+        const val FAILED = 3
     }
 
     private fun log(message: String) {
