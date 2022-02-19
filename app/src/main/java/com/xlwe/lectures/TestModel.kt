@@ -14,7 +14,21 @@ class TestModel(
     private var count = 0
 
     override fun getJoke() {
-        service.getJoke().enqueue(object : retrofit2.Callback<JokeDTO> {
+        Thread {
+            when (count) {
+                0 -> callback?.provideJoke(BaseJoke("baseText"))
+                1 -> callback?.provideJoke(FavoriteJoke("favoriteText"))
+                2 -> callback?.provideJoke(FailedJoke(serviceUnavailable.getMessage()))
+            }
+
+            count++
+
+            if (count == 3)
+                count = 0
+
+        }.start()
+
+        /*service.getJoke().enqueue(object : retrofit2.Callback<JokeDTO> {
             override fun onResponse(call: Call<JokeDTO>, response: Response<JokeDTO>) {
                 if (response.isSuccessful)
                     callback?.provideSuccess(response.body()!!.toJoke())
@@ -26,7 +40,7 @@ class TestModel(
                 else
                     callback?.provideError(serviceUnavailable)
             }
-        })
+        })*/
     }
 
     override fun init(callback: ResultCallback) {

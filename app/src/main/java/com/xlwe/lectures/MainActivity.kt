@@ -1,21 +1,10 @@
 package com.xlwe.lectures
 
-import android.content.Context
-import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.TextPaint
-import android.text.method.LinkMovementMethod
-import android.text.style.ClickableSpan
-import android.util.Log
 import android.view.View
-import android.widget.Toast
-import com.google.android.material.snackbar.Snackbar
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.xlwe.lectures.databinding.ActivityMainBinding
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
     private val binding: ActivityMainBinding by lazy {
@@ -38,11 +27,19 @@ class MainActivity : AppCompatActivity() {
             viewModel.getJoke()
         }
 
-        viewModel.init(object : TextCallback {
+        binding.checkBox.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.chooseFavorites(isChecked)
+        }
+
+        viewModel.init(object : DataCallback {
             override fun provideText(text: String) = runOnUiThread {
                 binding.actionButton.isEnabled = true
                 binding.progressBar.visibility = View.INVISIBLE
                 binding.textView.text = text
+            }
+
+            override fun provideIconRes(id: Int) = runOnUiThread {
+                binding.iconView.setImageResource(id)
             }
         })
     }

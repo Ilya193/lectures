@@ -1,24 +1,27 @@
 package com.xlwe.lectures
 
 class ViewModel(private val model: Model) {
-    private var callback: TextCallback? = null
+    private var callback: DataCallback? = null
 
-    fun init(callback: TextCallback) {
+    fun init(callback: DataCallback) {
         this.callback = callback
 
         model.init(object : ResultCallback {
-            override fun provideSuccess(data: Joke) {
-                callback.provideText(data.getJokeUi())
-            }
-
-            override fun provideError(error: Error) {
-                callback.provideText(error.getMessage())
+            override fun provideJoke(data: Joke) {
+                callback.run {
+                    provideText(data.getJokeUi())
+                    provideIconRes(data.getIconResId())
+                }
             }
         })
     }
 
     fun getJoke() {
         model.getJoke()
+    }
+
+    fun chooseFavorites(favorites: Boolean) {
+
     }
 
     fun clear() {

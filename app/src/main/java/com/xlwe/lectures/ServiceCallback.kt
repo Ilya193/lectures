@@ -1,6 +1,6 @@
 package com.xlwe.lectures
 
 interface ServiceCallback {
-    fun returnSuccess(data: JokeDTO)
+    fun returnSuccess(data: JokeServerModel)
     fun returnError(type: ErrorType)
 }
