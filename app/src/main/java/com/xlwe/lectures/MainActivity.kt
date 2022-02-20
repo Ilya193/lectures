@@ -24,6 +24,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        binding.dialView.start()
 
+        binding.root.setOnClickListener {
+            binding.dialView.stop()
+        }
     }
 }
