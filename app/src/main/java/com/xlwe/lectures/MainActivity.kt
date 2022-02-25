@@ -1,7 +1,9 @@
 package com.xlwe.lectures
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Color
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -22,6 +24,13 @@ class MainActivity : AppCompatActivity() {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
+    private val executionService = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val res = intent?.getBooleanExtra(MyService.EXECUTION, true)
+            Snackbar.make(binding.root, "$res", Snackbar.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -32,5 +41,7 @@ class MainActivity : AppCompatActivity() {
         else {
             startService(Intent(this, MyService::class.java))
         }
+
+        registerReceiver(executionService, IntentFilter(MyService.INFORMATION))
     }
 }

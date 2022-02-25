@@ -45,15 +45,24 @@ class MyService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         coroutineScope.launch {
-            for (i in 0..20) {
+            for (i in 0..10) {
                 Log.d("MyService", "$i")
                 delay(1000)
             }
 
+            finishExecuting()
+
             stopSelf()
         }
 
-        return START_STICKY
+        return START_NOT_STICKY
+    }
+
+    private fun finishExecuting() {
+        val intent = Intent(INFORMATION)
+        intent.putExtra(EXECUTION, false)
+
+        sendBroadcast(intent)
     }
 
     override fun onDestroy() {
@@ -69,5 +78,8 @@ class MyService : Service() {
         private const val CHANNEL_ID = "channel_id"
         private const val CHANNEL_NAME = "channel_name"
         private const val NOTIFICATION_ID = 1
+
+        const val INFORMATION = "information"
+        const val EXECUTION = "information"
     }
 }
