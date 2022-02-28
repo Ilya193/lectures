@@ -1,7 +1,9 @@
 package com.xlwe.lectures
 
 import android.content.Context
+import android.content.IntentFilter
 import android.graphics.Color
+import android.net.wifi.WifiManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.SpannableString
@@ -25,5 +27,18 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val intentFilter = IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION)
+        registerReceiver(wifiState, intentFilter)
+    }
+
+    private val wifiState = WifiStateReceiver()
+
+    override fun onStop() {
+        super.onStop()
+        unregisterReceiver(wifiState)
     }
 }
