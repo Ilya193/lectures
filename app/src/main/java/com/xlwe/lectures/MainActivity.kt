@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
 
     private val wifiState = WifiStateReceiver()
 
-    override fun onStop() {
+    override fun onPause() {
         super.onStop()
         unregisterReceiver(wifiState)
     }
