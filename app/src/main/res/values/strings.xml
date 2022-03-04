@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">lectures</string>
+    <string name="change_name">Изменить имя</string>
+    <string name="change_email">Изменить email</string>
 </resources>
