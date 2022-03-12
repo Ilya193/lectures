@@ -7,11 +7,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.xlwe.lectures.databinding.ItemBinding
 
 class NumbersRecyclerAdapter(
-    private var numbers: List<Int>,
+    private var numbers: List<Note>,
     private val onClickListener: OnClickListener
 ) : RecyclerView.Adapter<NumbersViewHolder>() {
 
-    fun update(newList: List<Int>) {
+    fun update(newList: List<Note>) {
         val diffUtilsCallback = DiffUtilsCallback(numbers, newList)
         val diffResult = DiffUtil.calculateDiff(diffUtilsCallback)
         numbers = newList
@@ -28,10 +28,10 @@ class NumbersRecyclerAdapter(
         val item = numbers[position]
 
         with(holder) {
-            binding.textTv.text = item.toString()
+            binding.textTv.text = item.text
 
             itemView.setOnClickListener {
-                onClickListener.onClick(position)
+                onClickListener.onClick(adapterPosition)
             }
         }
     }
