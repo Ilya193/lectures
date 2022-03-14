@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity(), OnClickListener {
     private lateinit var numbersAdapter: NumbersRecyclerAdapter
 
     private lateinit var mainList: List<Note>
-    var filteredList = mutableListOf<Note>()
+    private var filteredList = mutableListOf<Note>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
